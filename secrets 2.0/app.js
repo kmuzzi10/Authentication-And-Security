@@ -2,16 +2,18 @@ import express from "express";
 import bodyParser from "body-parser";
 import ejs from "ejs";
 import mongoose from "mongoose";
+import encrypt from "mongoose-encryption";
 
 const app = express();
 
+mongoose.connect("mongodb://127.0.0.1:27017/UserDB")
 
 const userSchema = new mongoose.Schema({
     email : String,
     password:String
 });
-
-
+const secret = "thisisourlittlesecret"
+userSchema.plugin(encrypt,{secret:secret , encryptedFields:["password"]})
 
 
 const User = mongoose.model("user",userSchema);
@@ -45,7 +47,7 @@ app.post("/register",async(req,res)=>{
         email: req.body.username,
         password: req.body.password
     });
-    await User.insertMany(userData);
+    userData.save();
     res.redirect("/secrets")
 });
 
