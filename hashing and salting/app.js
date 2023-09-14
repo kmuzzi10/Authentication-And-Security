@@ -4,6 +4,8 @@ import bodyParser from "body-parser";
 import ejs from "ejs";
 import mongoose from "mongoose";
 import md5 from "md5";
+import bcrypt from "bcryptjs";
+const saltRounds = bcrypt.genSaltSync(10);
 
 
 const app = express();
@@ -46,23 +48,33 @@ app.get("/secrets", (req, res) => {
 
 
 app.post("/register", async (req, res) => {
-    const userData = new User({
-        email: req.body.username,
-        password: md5(req.body.password)
+
+    bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        const userData = new User({
+            email: req.body.username,
+            password: hash
+        });
+        userData.save();
+        res.redirect("/secrets");
     });
-    userData.save();
-    res.redirect("/secrets");
+
+
+    
 });
 
 app.post("/login", async (req, res) => {
     const email = req.body.username;
-    const password = md5(req.body.password);
+    const password = req.body.password;
     try {
         const found = await User.findOne({ email: email }).exec()
         if (found) {
-            if (found.password == password) {
+            bcrypt.compare(password, found.password, function(err, result) {
+               if(result === true){
                 res.redirect("/secrets");
-            }
+               }
+            });
+                
+            
         }
     } catch (err) {
         console.log(err);
