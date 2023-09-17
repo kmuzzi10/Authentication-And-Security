@@ -45,8 +45,8 @@ const User = mongoose.model("user", userSchema);
 
 passport.use(User.createStrategy());
 
-passport.serializeUser(User.serializeUser);
-passport.deserializeUser(User.deserializeUser);
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
 
@@ -63,10 +63,7 @@ app.get("/register", (req, res) => {
     res.render("register");
 
 });
-app.use((req, res, next) => {
-    console.log("Is Authenticated:", req.isAuthenticated());
-    next();
-});
+
 app.get("/secrets", (req, res) => {
     console.log("Session before authentication check:", req.session);
     if (req.isAuthenticated()) {
@@ -89,6 +86,7 @@ app.post("/register", (req, res) => {
             passport.authenticate("local")(req, res, () => {
                 res.redirect("/secrets");
             });
+
         };
     });
 
