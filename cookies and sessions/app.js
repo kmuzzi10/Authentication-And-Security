@@ -17,7 +17,7 @@ app.set("view engine", "ejs");
 app.use(session({
     secret: 'this is my secret and i am not gonna show',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
 
 }));
 
@@ -63,6 +63,16 @@ app.get("/register", (req, res) => {
     res.render("register");
 
 });
+app.get("/logout",(req,res)=>{
+    req.logout((err)=>{
+        if(err){
+            console.log(err)
+        }else{
+            res.redirect("/")
+        }
+    });
+    
+})
 
 app.get("/secrets", (req, res) => {
     console.log("Session before authentication check:", req.session);
@@ -95,6 +105,22 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
+
+    const user = new User({
+        username: req.body.username,
+        password: req.body.password
+    });
+
+    passport.authenticate("local")(req, res, () => {
+        // This callback will be called after authentication succeeds or fails
+        if (req.isAuthenticated()) {
+            // User is authenticated, redirect to the secrets page
+            res.redirect("/secrets");
+        } else {
+            // Authentication failed, redirect to the login page
+            res.redirect("/login");
+        }
+    });
 
 });
 
