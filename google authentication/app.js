@@ -9,6 +9,8 @@ import passport from 'passport';
 import passportLocalMongoose from "passport-local-mongoose";
 import Google from "passport-google-oauth20";
 const GoogleStrategy = Google.Strategy;
+import Facebook from "passport-facebook";
+const FacebookStrategy = Facebook.Strategy;
 import findOrCreate from "mongoose-findorcreate";
 
 
@@ -131,6 +133,14 @@ app.get("/secrets", (req, res) => {
     console.log("Session after authentication check:", req.session);
 
 });
+
+app.get("/submit",(req,res)=>{
+    if (req.isAuthenticated()) {
+        res.render("submit");
+    } else {
+        res.redirect("/login");
+    }
+})
 
 
 app.post("/register", (req, res) => {
